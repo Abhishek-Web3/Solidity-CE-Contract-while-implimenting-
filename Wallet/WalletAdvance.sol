@@ -15,6 +15,7 @@ contract SimpleWallet {
    
     address public owner;
     string public str;
+    bool public stop;
 
     struct Transaction {
         address from;
@@ -36,6 +37,18 @@ contract SimpleWallet {
 
     modifier onlyOwner() {
         require(msg.sender == owner,"You don't have access");
+        _;
+    }
+
+    function changeOwner(address newOwner) public onlyOwner{
+        owner = newOwner;
+    }
+    function togleEmergency() external {
+        stop=!stop;
+    }
+
+    modifier isEmergencyDeclared() {
+        require(stop==false, "Emergency Declared");
         _;
     }
    
@@ -155,6 +168,11 @@ contract SimpleWallet {
 
     function getTransactionHistory() external view returns(Transaction[] memory) {
         return transactionHistory;
+    }
+
+    function emergencyWithdrawl() external {
+        require(stop == true, "Emergency not declared");
+        payable (owner).transfer(address(this).balance); // trnsafer all money from contract 
     }
 
 
